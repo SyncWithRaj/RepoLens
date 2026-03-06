@@ -6,7 +6,7 @@ import { CodeEntity } from "./codeEntity.model.js";
 export async function getRepositoryEntities(req: Request, res: Response, next: NextFunction) {
     try {
         const { id } = req.params;
-        const { type, page = "1", limit = "50" } = req.query;
+        const { type, page = "1", limit = "500" } = req.query;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({

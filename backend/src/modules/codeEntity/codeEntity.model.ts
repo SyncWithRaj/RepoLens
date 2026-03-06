@@ -5,12 +5,14 @@ export interface ICodeEntity extends Document {
     repoId: mongoose.Types.ObjectId;
     filePath: string;
     name: string;
-    type: string;
+    type: "function" | "class" | "method" | "constructor" | "property" | "staticMethod" | "arrow" | "interface" | "typeAlias" | "enum" | "variable" | "import" | "export" | "route";
     parameters: string[];
     returnType: string;
     startLine: number;
     endLine: number;
     content: string;
+    scopeDepth: number;
+    parentName?: string | null;
     embeddingId?: string;
 }
 
@@ -32,7 +34,7 @@ const codeEntitySchema = new Schema<ICodeEntity>(
         },
         type: {
             type: String,
-            enum: ["function", "class", "method", "arrow", "interface"],
+            enum: ["function", "class", "method", "constructor", "property", "staticMethod", "arrow", "interface", "typeAlias", "enum", "variable", "import", "export", "route"],
             required: true,
         },
         parameters: {
@@ -55,11 +57,27 @@ const codeEntitySchema = new Schema<ICodeEntity>(
             type: String,
             required: true
         },
-        embeddingId:{
+        scopeDepth: {
+            type: Number,
+            required: true,
+            default: 0,
+            index: true,
+        },
+        parentName: {
+            type: String,
+            default: null,
+            index: true,
+        },
+        embeddingId: {
             type: String,
         }
     },
-    {timestamps: true}
+    { timestamps: true }
 );
+
+codeEntitySchema.index({ repoId: 1, name: 1 })
+codeEntitySchema.index({ repoId: 1, parentName: 1 })
+codeEntitySchema.index({ repoId: 1, scopeDepth: 1 })
+codeEntitySchema.index({ repoId: 1, filePath: 1 })
 
 export const CodeEntity = mongoose.model<ICodeEntity>("CodeEntity", codeEntitySchema)

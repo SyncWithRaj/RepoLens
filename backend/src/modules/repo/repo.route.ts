@@ -3,6 +3,8 @@ import { addRepository, deleteRepository, getRepositoryById, getUserRepositories
 import { protect } from "../auth/auth.middleware.js";
 import { parseRepoController } from "../parser/parser.controller.js";
 import { getRepositoryEntities } from "../codeEntity/codeEntity.controller.js";
+import { getRepositoryoRelations}from "../codeRelations/relationship.controller.js"
+import { getRepoFilesController } from "../fileMetadata/fileMetadata.controller.js";
 
 const router = Router();
 
@@ -13,5 +15,7 @@ router.delete("/:id", protect, deleteRepository)
 router.get("/:id/scan", protect, scanRepository);
 router.post("/:id/parse", protect, parseRepoController);
 router.get("/:id/entities", protect, getRepositoryEntities);
+router.get("/:id/relations", protect, getRepositoryoRelations)
+router.get("/:id/files", getRepoFilesController);
 
 export default router;
