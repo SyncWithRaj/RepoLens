@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
-import { FileMetadata } from "../fileMetadata/fileMetadata.model.js";
+import { FileMetadata } from "../models/fileMetadata.model.js";
 
 export async function getRepoFilesController(
   req: Request,

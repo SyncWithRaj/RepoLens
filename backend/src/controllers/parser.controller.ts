@@ -1,13 +1,13 @@
 import type { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
 
-import { Repository } from "../repo/repo.model.js";
-import { scanCodeFiles } from "../indexer/fileScanner.js";
-import { processRepositoryParsing } from "./parser.service.js";
+import { Repository } from "../models/repo.model.js";
+import { scanCodeFiles } from "../modules/indexer/fileScanner.js";
+import { processRepositoryParsing } from "../services/parser.service.js";
 
-import { CodeEntity } from "../codeEntity/codeEntity.model.js";
-import { CodeRelationship } from "../codeRelations/relationship.model.js";
-import { FileMetadata } from "../fileMetadata/fileMetadata.model.js";
+import { CodeEntity } from "../models/codeEntity.model.js";
+import { CodeRelationship } from "../models/relationship.model.js";
+import { FileMetadata } from "../models/fileMetadata.model.js";
 
 
 export async function parseRepoController(
@@ -43,18 +43,15 @@ export async function parseRepoController(
     }
 
 
-    // indexing start
     repo.status = "indexing";
     await repo.save();
 
 
-    // 🔥 clean old indexed data
     await CodeEntity.deleteMany({ repoId: id });
     await CodeRelationship.deleteMany({ repoId: id });
     await FileMetadata.deleteMany({ repoId: id });
 
 
-    // scan files
     const scannedFiles = scanCodeFiles(repo.localPath);
 
     if (!scannedFiles.length) {
@@ -89,6 +86,11 @@ export async function parseRepoController(
   } catch (error) {
 
     console.error("Parse Controller Error:", error);
+
+    try {
+      const { id } = req.params;
+      await Repository.findByIdAndUpdate(id, { status: "failed" });
+    } catch { }
 
     next(error);
   }

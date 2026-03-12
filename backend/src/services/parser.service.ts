@@ -1,8 +1,8 @@
-import { CodeEntity } from "../codeEntity/codeEntity.model.js";
-import { CodeRelationship } from "../codeRelations/relationship.model.js";
-import { FileMetadata } from "../fileMetadata/fileMetadata.model.js";
+import { CodeEntity } from "../models/codeEntity.model.js";
+import { CodeRelationship } from "../models/relationship.model.js";
+import { FileMetadata } from "../models/fileMetadata.model.js";
 
-import { parseRepository } from "./astParser.js";
+import { parseRepository } from "../modules/parser/astParser.js";
 
 export async function processRepositoryParsing(
   repoId: string,

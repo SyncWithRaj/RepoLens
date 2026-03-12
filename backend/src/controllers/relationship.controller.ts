@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
-import { CodeRelationship } from "./relationship.model.js";
-import { Repository } from "../repo/repo.model.js";
+import { CodeRelationship } from "../models/relationship.model.js";
+import { Repository } from "../models/repo.model.js";
 
 export async function getRepositoryoRelations(
     req: Request,

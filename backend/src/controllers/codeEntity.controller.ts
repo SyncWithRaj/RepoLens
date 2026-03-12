@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
-import { Repository } from "../repo/repo.model.js";
-import { CodeEntity } from "./codeEntity.model.js";
+import { Repository } from "../models/repo.model.js";
+import { CodeEntity } from "../models/codeEntity.model.js";
 
 export async function getRepositoryEntities(req: Request, res: Response, next: NextFunction) {
     try {

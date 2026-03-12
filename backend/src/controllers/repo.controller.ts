@@ -1,9 +1,9 @@
 import type { Request, Response } from "express";
 import simpleGit from "simple-git";
-import { Repository } from "./repo.model.js";
+import { Repository } from "../models/repo.model.js";
 import fs from "fs"
 import path from "path";
-import { scanCodeFiles } from "../indexer/fileScanner.js";
+import { scanCodeFiles } from "../modules/indexer/fileScanner.js";
 
 
 const git = simpleGit();
@@ -21,7 +21,6 @@ export const addRepository = async (req: Request, res: Response) => {
             return res.status(400).json({ message: "GitHub URL is required" });
         }
 
-        // Basic URL validation (important)
         if (!githubUrl.startsWith("https://github.com/")) {
             return res.status(400).json({
                 message: "Invalid GitHub repository URL",
@@ -34,7 +33,6 @@ export const addRepository = async (req: Request, res: Response) => {
             return res.status(400).json({ message: "Invalid GitHub URL" });
         }
 
-        //create repo record first
         const repo = new Repository({
             user: user._id,
             name: repoName,

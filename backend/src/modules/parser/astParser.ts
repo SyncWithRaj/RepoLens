@@ -97,7 +97,7 @@ export async function parseRepository(
             allowJs: true,
             checkJs: false,
 
-            jsx: ts.JsxEmit.ReactJSX,   // 🔥 CRITICAL
+            jsx: ts.JsxEmit.ReactJSX,
             target: ts.ScriptTarget.ESNext,
             module: ts.ModuleKind.ESNext,
             moduleResolution: ts.ModuleResolutionKind.NodeJs,

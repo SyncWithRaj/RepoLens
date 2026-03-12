@@ -3,7 +3,7 @@ dotenv.config();
 
 import passport from "passport";
 import { Strategy as GitHubStrategy } from "passport-github2";
-import { User } from "../modules/auth/auth.model.js";
+import { User } from "../models/auth.model.js";
 
 passport.use(
     new GitHubStrategy(

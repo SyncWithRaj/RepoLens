@@ -1,7 +1,7 @@
 import { Router } from "express";
 import passport from "passport";
 import jwt from "jsonwebtoken";
-import { protect } from "./auth.middleware.js";
+import { protect } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 

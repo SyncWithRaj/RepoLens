@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { addRepository, deleteRepository, getRepositoryById, getUserRepositories, scanRepository } from "./repo.controller.js";
-import { protect } from "../auth/auth.middleware.js";
-import { parseRepoController } from "../parser/parser.controller.js";
-import { getRepositoryEntities } from "../codeEntity/codeEntity.controller.js";
-import { getRepositoryoRelations}from "../codeRelations/relationship.controller.js"
-import { getRepoFilesController } from "../fileMetadata/fileMetadata.controller.js";
+import { addRepository, deleteRepository, getRepositoryById, getUserRepositories, scanRepository } from "../controllers/repo.controller.js";
+import { protect } from "../middlewares/auth.middleware.js";
+import { parseRepoController } from "../controllers/parser.controller.js";
+import { getRepositoryEntities } from "../controllers/codeEntity.controller.js";
+import { getRepositoryoRelations}from "../controllers/relationship.controller.js"
+import { getRepoFilesController } from "../controllers/fileMetadata.controller.js";
 
 const router = Router();
 

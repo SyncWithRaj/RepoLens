@@ -4,9 +4,10 @@ import healthRoute from "./routes/index.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
 import passport from "./config/passport.js";
 // import session from "express-session";
-import authRoute from "./modules/auth/auth.route.js"
-import repoRoutes from "./modules/repo/repo.route.js";
+import authRoute from "./routes/auth.route.js"
+import repoRoutes from "./routes/repo.route.js";
 import cookieParser from "cookie-parser";
+import queryRoutes from "./routes/query.route.js";
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use(passport.initialize());
 app.use("/api/v1", healthRoute);
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/repos", repoRoutes)
+app.use("/api/v1/query", queryRoutes);
 
 app.use(errorHandler)
 
