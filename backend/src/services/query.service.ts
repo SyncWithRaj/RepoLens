@@ -4,31 +4,26 @@ import { searchVectors } from "./vector.service.js";
 
 export const askQuestion = async (repoId: string, question: string) => {
 
-    // 1️⃣ vector search
     const results = await searchVectors(repoId, question, 3);
 
     console.log("VECTOR RESULTS:", results);
 
-    // 2️⃣ extract mongo ids
     const entityIds = results.map((r: any) => r[0].metadata.mongoId);
 
-    // 3️⃣ fetch entities
     const entities = await CodeEntity.find({
         _id: { $in: entityIds }
     });
 
-    // 4️⃣ map entities (ranking preserve karne ke liye)
     const entityMap = new Map(
         entities.map((e: any) => [e._id.toString(), e])
     );
 
-    // 5️⃣ construct context
     const context = entityIds.map((id: string, index: number) => {
 
         const entity = entityMap.get(id);
 
         return {
-            filePath: entity.filePath,   // ✅ FULL PATH
+            filePath: entity.filePath,
             code: entity.content,
             startLine: entity.startLine,
             endLine: entity.endLine,
@@ -37,7 +32,6 @@ export const askQuestion = async (repoId: string, question: string) => {
 
     });
 
-    // 6️⃣ build prompt
     const prompt = `
 You are RepoLens, an AI assistant that helps developers understand a codebase.
 
@@ -68,10 +62,8 @@ Response format:
 3. File location and line numbers
 `;
 
-    // 7️⃣ call LLM
     const answer = await generateAnswer(prompt);
 
-    // 8️⃣ ranked sources
     const sources = context
         .sort((a, b) => b.score - a.score)
         .slice(0, 3)
