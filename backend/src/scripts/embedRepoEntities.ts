@@ -7,7 +7,7 @@ import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { CodeEntity } from "../models/codeEntity.model.js";
 
 const MONGO_URI = process.env.MONGO_URI!;
-const GEMINI_API_KEY = process.env.GOOGLE_API_KEY!;
+const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY!;
 const COLLECTION = "repo_entities";
 
 async function run() {
@@ -27,7 +27,7 @@ async function run() {
     });
 
     const embeddings = new GoogleGenerativeAIEmbeddings({
-        apiKey: GEMINI_API_KEY,
+        apiKey: GOOGLE_API_KEY,
         model: "models/gemini-embedding-001",
     });
 

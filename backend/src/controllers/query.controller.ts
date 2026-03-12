@@ -1,23 +1,25 @@
-
 import type { Request, Response } from "express";
 import { askQuestion } from "../services/query.service.js";
 
 export const ask = async (req: Request, res: Response) => {
+
   try {
 
     const { repoId, question } = req.body;
 
     if (!repoId || !question) {
       return res.status(400).json({
+        success: false,
         message: "repoId and question required"
       });
     }
 
-    const context = await askQuestion(repoId, question);
+    const result = await askQuestion(repoId, question);
 
     res.json({
       success: true,
-      context
+      answer: result.answer,
+      sources: result.sources
     });
 
   } catch (error) {
