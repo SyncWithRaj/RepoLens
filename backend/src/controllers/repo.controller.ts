@@ -1,9 +1,12 @@
 import type { Request, Response } from "express";
 import simpleGit from "simple-git";
-import { Repository } from "../models/repo.model.js";
 import fs from "fs"
 import path from "path";
 import { scanCodeFiles } from "../modules/indexer/fileScanner.js";
+import { Repository } from "../models/repo.model.js";
+import { CodeEntity } from "../models/codeEntity.model.js";
+import { CodeRelationship } from "../models/relationship.model.js";
+import { FileMetadata } from "../models/fileMetadata.model.js";
 
 
 const git = simpleGit();
@@ -136,49 +139,63 @@ export const getRepositoryById = async (req: Request, res: Response) => {
 
 export const deleteRepository = async (req: Request, res: Response) => {
     try {
-        const repo = await Repository.findById(req.params.id);
+
+        const repoId = req.params.id;
+
+        const repo = await Repository.findById(repoId);
 
         if (!repo) {
-            return res.status(404).json({ message: "Repo not found" })
+            return res.status(404).json({
+                success: false,
+                message: "Repo not found"
+            });
         }
 
-        /// Delete folder
         if (fs.existsSync(repo.localPath)) {
-            fs.rmSync(repo.localPath, { recursive: true, force: true })
+            fs.rmSync(repo.localPath, { recursive: true, force: true });
         }
+
+        await CodeEntity.deleteMany({ repoId: repoId });
+        await CodeRelationship.deleteMany({ repoId: repoId });
+        await FileMetadata.deleteMany({ repoId: repoId });
 
         await repo.deleteOne();
 
         res.json({
             success: true,
-            message: "Repository deleted"
-        })
+            message: "Repository and all related data deleted"
+        });
     } catch (error) {
-        res.status(500).json({ message: "failes to delete repo" })
-    }
-}
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to delete repository"
+        });
 
-export const scanRepository = async (req: Request, res: Response)=>{
+    }
+};
+
+export const scanRepository = async (req: Request, res: Response) => {
     try {
         const user = (req as any).user;
 
         const repo = await Repository.findOne({
-            _id:req.params.id,
+            _id: req.params.id,
             user: user._id,
         })
 
-        if(!repo){
-            return res.status(404).json({message: "Repository nnot found"});
+        if (!repo) {
+            return res.status(404).json({ message: "Repository nnot found" });
         }
 
         const files = scanCodeFiles(repo.localPath);
 
         return res.json({
-            success:true,
+            success: true,
             totalFiles: files.length,
             files
         })
     } catch (error) {
-        return res.status(500).json({message: "Scan Failed"})
+        return res.status(500).json({ message: "Scan Failed" })
     }
 }

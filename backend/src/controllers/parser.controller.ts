@@ -68,12 +68,9 @@ export async function parseRepoController(
 
     const filePaths = scannedFiles.map(file => file.absolutePath);
 
-
-    // 🔥 run parsing pipeline
     const result = await processRepositoryParsing(id, filePaths);
 
 
-    // indexing complete
     repo.status = "indexed";
     await repo.save();
 
