@@ -7,7 +7,7 @@ import { Repository } from "../models/repo.model.js";
 import { CodeEntity } from "../models/codeEntity.model.js";
 import { CodeRelationship } from "../models/relationship.model.js";
 import { FileMetadata } from "../models/fileMetadata.model.js";
-
+import { QdrantClient } from "@qdrant/js-client-rest";
 
 const git = simpleGit();
 
@@ -43,7 +43,6 @@ export const addRepository = async (req: Request, res: Response) => {
             status: "cloning",
         });
 
-        // create storage path
         const repoPath = path.join(
             process.cwd(),
             "storage",
@@ -54,21 +53,42 @@ export const addRepository = async (req: Request, res: Response) => {
 
         fs.mkdirSync(repoPath, { recursive: true });
 
-        //update localPath
         repo.localPath = repoPath;
         await repo.save();
 
-        // clone repo
         try {
-            await git.clone(githubUrl, repoPath);
+            console.log("🚀 Cloning repo...");
 
+            await git.clone(githubUrl, repoPath, ["--depth", "1"]);
+
+            console.log("✅ CLONE DONE");
+
+            const files = fs.readdirSync(repoPath);
+            console.log("FILES AFTER CLONE:", files);
+
+            if (files.length === 0) {
+                throw new Error("Clone failed: empty directory");
+            }
+
+            const gitRepo = simpleGit(repoPath);
+            const latestCommit = await gitRepo.revparse(["HEAD"]);
+
+            console.log("COMMIT:", latestCommit);
+
+            repo.commitHash = latestCommit;
+            repo.fingerprint = `${repo.githubUrl}_${latestCommit}`;
             repo.status = "cloned";
+
             await repo.save();
+
+            console.log("✅ REPO SAVED WITH CLONED STATUS");
+
         } catch (cloneError) {
+            console.error("❌ CLONE ERROR:", cloneError);
+
             repo.status = "failed";
             await repo.save();
 
-            // Clean up failed folder
             if (fs.existsSync(repoPath)) {
                 fs.rmSync(repoPath, { recursive: true, force: true });
             }
@@ -78,10 +98,12 @@ export const addRepository = async (req: Request, res: Response) => {
                 message: "Repository cloning failed",
             });
         }
+
         return res.status(201).json({
             success: true,
             repo,
         });
+
     } catch (error) {
         console.error(error);
         return res.status(500).json({
@@ -153,6 +175,46 @@ export const deleteRepository = async (req: Request, res: Response) => {
 
         if (fs.existsSync(repo.localPath)) {
             fs.rmSync(repo.localPath, { recursive: true, force: true });
+        }
+
+        const qdrant = new QdrantClient({
+            url: process.env.QDRANT_URL || "http://localhost:6333",
+        });
+
+        const COLLECTION = "repo_entities";
+
+        // 🔍 check how many repos share fingerprint
+        const count = await Repository.countDocuments({
+            fingerprint: repo.fingerprint,
+        });
+
+        if (count === 1) {
+            try {
+                console.log("Attempting vector deletion for:", repo.fingerprint);
+
+                await qdrant.delete(COLLECTION, {
+                    filter: {
+                        must: [
+                            {
+                                key: "metadata.fingerprint",
+                                match: {
+                                    value: repo.fingerprint,
+                                },
+                            },
+                        ],
+                    },
+                });
+
+                console.log("✅ Vectors deleted (if existed)");
+            } catch (err: any) {
+                if (err?.status === 404) {
+                    console.log("⚠️ Collection not found → skip delete (safe)");
+                } else {
+                    console.error("❌ Qdrant delete error:", err);
+                }
+            }
+        } else {
+            console.log("Skipping vector deletion (shared by multiple users)");
         }
 
         await CodeEntity.deleteMany({ repoId: repoId });

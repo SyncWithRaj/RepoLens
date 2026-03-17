@@ -1,5 +1,6 @@
 import { QdrantVectorStore } from "@langchain/qdrant";
 import { embeddingModel } from "./embedding.service.js";
+import { Repository } from "../models/repo.model.js";
 
 let vectorStore: QdrantVectorStore | null = null;
 
@@ -19,7 +20,9 @@ const getVectorStore = async () => {
   return vectorStore;
 };
 
+
 export const searchVectors = async (repoId: string, query: string) => {
+  const repo = await Repository.findById(repoId);
 
   const store = await getVectorStore();
 
@@ -29,9 +32,9 @@ export const searchVectors = async (repoId: string, query: string) => {
     {
       must: [
         {
-          key: "metadata.repoId",
+          key: "metadata.fingerprint",
           match: {
-            value: repoId
+            value: repo?.fingerprint
           }
         }
       ]

@@ -12,13 +12,13 @@ export interface IRepository extends Document {
     updatedAt: Date;
 }
 
-const repoSchema = new Schema < IRepository > ({
-    user:{
+const repoSchema = new Schema<IRepository>({
+    user: {
         type: Schema.Types.ObjectId,
         ref: "User",
         required: true,
     },
-    name:{
+    name: {
         type: String,
         required: true,
     },
@@ -39,6 +39,13 @@ const repoSchema = new Schema < IRepository > ({
         enum: ["cloning", "cloned", "indexing", "indexed", "failed"],
         default: "cloning",
     },
+    commitHash: {
+        type: String,
+    },
+    fingerprint: {
+        type: String,
+        index: true,
+    }
 }, {
     timestamps: true,
 });

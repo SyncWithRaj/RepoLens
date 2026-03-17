@@ -70,13 +70,14 @@ ${entity.content || ""}
                 pageContent: entity.content || entity.name,
                 metadata: {
                     mongoId: entity._id.toString(),
-                    repoId: entity.repoId.toString(),
+                    fingerprint: repo.fingerprint,
                     filePath: entity.filePath,
                     startLine: entity.startLine,
                     endLine: entity.endLine
                 }
             }
         });
+        console.log("POINT ID:", i + 1);
     }
 
     console.log("Uploading vectors...");

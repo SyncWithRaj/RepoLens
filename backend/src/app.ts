@@ -8,7 +8,8 @@ import authRoute from "./routes/auth.route.js"
 import repoRoutes from "./routes/repo.route.js";
 import cookieParser from "cookie-parser";
 import queryRoutes from "./routes/query.route.js";
-
+import embedRoutes from "./routes/embedRepository.route.js"
+import vectorInitRoutes from "./routes/vectorInit.route.js"
 const app = express();
 
 app.use(
@@ -32,7 +33,8 @@ app.use("/api/v1", healthRoute);
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/repos", repoRoutes)
 app.use("/api/v1/query", queryRoutes);
-
+app.use("/api/v1/embed", embedRoutes);
+app.use("/api/v1/vector", vectorInitRoutes);
 app.use(errorHandler)
 
 export default app;
